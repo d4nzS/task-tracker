@@ -34,7 +34,7 @@ function changeTaskList(event) {
     $("#exampleModal").modal("hide");
 }
 
-function addTasks({id, title, text, priority, color, timestamp}) {
+function addTasks({id, title, text, priority, color, timestamp, current}) {
     const task = document.createElement('li');
 
     task.id = id;
@@ -64,7 +64,11 @@ function addTasks({id, title, text, priority, color, timestamp}) {
         </div>
     `;
 
-    currentTasksList.append(task);
+    if (current) {
+        currentTasksList.append(task);
+    } else {
+        completedTaskList.append(task);
+    }
 }
 
 function drawTasksInit() {
