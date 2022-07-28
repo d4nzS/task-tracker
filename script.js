@@ -1,14 +1,16 @@
 'use strict';
 
 const form = document.forms['form'];
-const tasks = document.getElementById('tasks');
+const tasksList = document.getElementById('tasks');
 const currentTasksList = document.getElementById('currentTasks');
+const completedTaskList = document.getElementById('completedTasks');
 
 drawTasksInit();
 
 form.onsubmit = changeTaskList;
 
-tasks.addEventListener('click', deleteTask);
+currentTasksList.addEventListener('click', completeTask);
+tasksList.addEventListener('click', deleteTask);
 
 function changeTaskList(event) {
     event.preventDefault();
@@ -21,7 +23,8 @@ function changeTaskList(event) {
         text: form['text'].value,
         priority: form['priority'].value,
         color: form['color'].value,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        current: true
     }
 
     localStorage.setItem(taskInfo.id, JSON.stringify(taskInfo));
@@ -67,6 +70,20 @@ function addTasks({id, title, text, priority, color, timestamp}) {
 function drawTasksInit() {
     (Object.values(localStorage))
         .forEach(taskJSON => addTasks(JSON.parse(taskJSON)));
+}
+
+function completeTask(event) {
+    const btnComplete = event.target;
+
+    if (!btnComplete.closest('.btn-success')) {
+        return;
+    }
+
+    const task = btnComplete.closest('.list-group-item');
+    const taskInfo = JSON.parse(localStorage.getItem(task.id));
+
+    localStorage.setItem(task.id, JSON.stringify({...taskInfo, current: false}));
+    completedTaskList.append(task);
 }
 
 function deleteTask(event) {
