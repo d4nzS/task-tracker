@@ -1,15 +1,40 @@
 'use strict';
 
 const form = document.forms['form'];
+const tasks = document.getElementById('tasks');
 const currentTasksList = document.getElementById('currentTasks');
 
 drawTasksInit();
 
 form.onsubmit = changeTaskList;
 
-function addTasks({title, text, priority, color, timestamp}) {
+tasks.addEventListener('click', deleteTask);
+
+function changeTaskList(event) {
+    event.preventDefault();
+
+    $('#exampleModalEdit').modal('show');
+
+    const taskInfo = {
+        id: generateId(),
+        title: form['title'].value,
+        text: form['text'].value,
+        priority: form['priority'].value,
+        color: form['color'].value,
+        timestamp: Date.now()
+    }
+
+    localStorage.setItem(taskInfo.id, JSON.stringify(taskInfo));
+    addTasks(taskInfo);
+
+    form.reset();
+    $("#exampleModal").modal("hide");
+}
+
+function addTasks({id, title, text, priority, color, timestamp}) {
     const task = document.createElement('li');
 
+    task.id = id;
     task.style.backgroundColor = color;
     task.classList.add('list-group-item', 'd-flex', 'w-100', 'mb-2');
     task.innerHTML = `
@@ -39,29 +64,22 @@ function addTasks({title, text, priority, color, timestamp}) {
     currentTasksList.append(task);
 }
 
-function changeTaskList(event) {
-    event.preventDefault();
-
-    $('#exampleModalEdit').modal('show');
-
-    const taskInfo = {
-        title: form['title'].value,
-        text: form['text'].value,
-        priority: form['priority'].value,
-        color: form['color'].value,
-        timestamp: Date.now()
-    }
-
-    localStorage.setItem(generateId(), JSON.stringify(taskInfo));
-    addTasks(taskInfo);
-
-    form.reset();
-    $("#exampleModal").modal("hide");
-}
-
 function drawTasksInit() {
     (Object.values(localStorage))
         .forEach(taskJSON => addTasks(JSON.parse(taskJSON)));
+}
+
+function deleteTask(event) {
+    const btnDelete = event.target;
+
+    if (!btnDelete.closest('.btn-danger')) {
+        return;
+    }
+
+    const task = btnDelete.closest('.list-group-item');
+
+    localStorage.removeItem(task.id);
+    task.remove();
 }
 
 /**
