@@ -5,7 +5,7 @@ const currentTasksList = document.getElementById('currentTasks');
 
 form.onsubmit = changeTaskList;
 
-function addTasks({title, text, priority, color, date}) {
+function addTasks({title, text, priority, color, timestamp}) {
     const task = document.createElement('li');
 
     task.style.backgroundColor = color;
@@ -16,7 +16,7 @@ function addTasks({title, text, priority, color, date}) {
                 <h5 class="mb-1">${title}</h5>
                 <div>
                     <small class="mr-2">${priority} priority</small>
-                    <small>${date}</small>
+                    <small>${showCurrentDate(timestamp)}</small>
                 </div>
             </div>
             <p class="mb-1 w-100">${text}</p>
@@ -47,7 +47,7 @@ function changeTaskList(event) {
         text: form['text'].value,
         priority: form['priority'].value,
         color: form['color'].value,
-        date: Date.now()
+        timestamp: Date.now()
     }
 
     localStorage.setItem(generateId(), JSON.stringify(taskInfo));
@@ -63,4 +63,20 @@ function changeTaskList(event) {
  */
 function generateId() {
     return "_" + Math.random().toString(36).substr(2, 9);
+}
+
+function showCurrentDate(timestamp) {
+    const date = new Date(timestamp);
+
+    let times = [
+        date.getHours(),
+        date.getMinutes(),
+        date.getDate(),
+        date.getMonth() + 1,
+        date.getFullYear(),
+    ];
+
+    times = times.map(item => item < 10 ? "0" + item : item);
+
+    return `${times[0]}:${times[1]} ${times[2]}.${times[3]}.${times[4]}`;
 }
