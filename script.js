@@ -3,6 +3,8 @@
 const form = document.forms['form'];
 const currentTasksList = document.getElementById('currentTasks');
 
+drawTasksInit();
+
 form.onsubmit = changeTaskList;
 
 function addTasks({title, text, priority, color, timestamp}) {
@@ -57,6 +59,11 @@ function changeTaskList(event) {
     $("#exampleModal").modal("hide");
 }
 
+function drawTasksInit() {
+    (Object.values(localStorage))
+        .forEach(taskJSON => addTasks(JSON.parse(taskJSON)));
+}
+
 /**
  * Generate id for task
  * @returns {string}
@@ -65,6 +72,10 @@ function generateId() {
     return "_" + Math.random().toString(36).substr(2, 9);
 }
 
+/**
+ * Date format hh:mm dd.mm.yyyy
+ * @returns {string}
+ */
 function showCurrentDate(timestamp) {
     const date = new Date(timestamp);
 
@@ -75,7 +86,6 @@ function showCurrentDate(timestamp) {
         date.getMonth() + 1,
         date.getFullYear(),
     ];
-
     times = times.map(item => item < 10 ? "0" + item : item);
 
     return `${times[0]}:${times[1]} ${times[2]}.${times[3]}.${times[4]}`;
