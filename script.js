@@ -1,7 +1,6 @@
 'use strict';
 
 const form = document.forms['form'];
-const tasksList = document.getElementById('tasks');
 const currentTasksList = document.getElementById('currentTasks');
 const completedTaskList = document.getElementById('completedTasks');
 
@@ -10,12 +9,13 @@ drawTasksInit();
 form.onsubmit = changeTaskList;
 
 currentTasksList.addEventListener('click', completeTask);
-tasksList.addEventListener('click', deleteTask);
+currentTasksList.addEventListener('click', deleteTask);
+completedTaskList.onclick = deleteTask;
 
 function changeTaskList(event) {
     event.preventDefault();
 
-    $('#exampleModalEdit').modal('show');
+    $('#exampleModal').modal('show');
 
     const taskInfo = {
         id: generateId(),
@@ -64,11 +64,7 @@ function addTasks({id, title, text, priority, color, timestamp, current}) {
         </div>
     `;
 
-    if (current) {
-        currentTasksList.append(task);
-    } else {
-        completedTaskList.append(task);
-    }
+    current ? currentTasksList.append(task) : completedTaskList.append(task);
 }
 
 function drawTasksInit() {
