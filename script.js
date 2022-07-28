@@ -1,20 +1,57 @@
 'use strict';
 
 const form = document.forms['form'];
+const currentTasksList = document.getElementById('currentTasks');
 
-form.onsubmit = function (event) {
+form.onsubmit = changeTaskList;
+
+function addTasks({title, text, priority, color, date}) {
+    const task = document.createElement('li');
+
+    task.style.backgroundColor = color;
+    task.classList.add('list-group-item', 'd-flex', 'w-100', 'mb-2');
+    task.innerHTML = `
+        <div class="w-100 mr-2">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">${title}</h5>
+                <div>
+                    <small class="mr-2">${priority} priority</small>
+                    <small>${date}</small>
+                </div>
+            </div>
+            <p class="mb-1 w-100">${text}</p>
+        </div>
+        <div class="dropdown m-2 dropleft">
+            <button class="btn btn-secondary h-100" type="button" id="dropdownMenuItem1"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <div class="dropdown-menu p-2 flex-column" aria-labelledby="dropdownMenuItem1">
+                <button type="button" class="btn btn-success w-100">Complete</button>
+                <button type="button" class="btn btn-info w-100 my-2">Edit</button>
+                <button type="button" class="btn btn-danger w-100">Delete</button>
+            </div>
+        </div>
+    `;
+
+    currentTasksList.append(task);
+}
+
+function changeTaskList(event) {
     event.preventDefault();
 
-    const task = {
-        title: form.elements['title'].value,
-        text:  form.elements['text'].value,
-        priority:  form.elements['priority'].value,
-        color:  form.elements['color'].value,
+    $('#exampleModalEdit').modal('show');
+
+    const taskInfo = {
+        title: form['title'].value,
+        text: form['text'].value,
+        priority: form['priority'].value,
+        color: form['color'].value,
         date: Date.now()
     }
 
-    // localStorage.setItem(generateId(), JSON.stringify(task));
-    console.log(task);
+    localStorage.setItem(generateId(), JSON.stringify(taskInfo));
+    addTasks(taskInfo);
 
     form.reset();
     $("#exampleModal").modal("hide");
