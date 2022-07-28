@@ -88,17 +88,17 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form>
+                <form name="form">
                     <div class="form-group row">
                         <label for="inputTitle" class="col-sm-2 col-form-label">Title</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputTitle" placeholder="Title" required>
+                            <input type="text" name="title" class="form-control" id="inputTitle" placeholder="Title" required>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label for="inputText" class="col-sm-2 col-form-label">Text</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputText" placeholder="Text" required>
+                            <input type="text" name="text" class="form-control" id="inputText" placeholder="Text" required>
                         </div>
                     </div>
                     <fieldset class="form-group">
@@ -106,21 +106,21 @@
                             <legend class="col-form-label col-sm-2 pt-0">Priority</legend>
                             <div class="col-sm-10">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="gridRadios" id="Low" value="Low"
+                                    <input class="form-check-input" type="radio" name="priority" id="Low" value="Low"
                                            required>
                                     <label class="form-check-label" for="Low">
                                         Low
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="gridRadios" id="Medium"
+                                    <input class="form-check-input" type="radio" name="priority" id="Medium"
                                            value="Medium">
                                     <label class="form-check-label" for="Medium">
                                         Medium
                                     </label>
                                 </div>
                                 <div class="form-check disabled">
-                                    <input class="form-check-input" type="radio" name="gridRadios" id="High"
+                                    <input class="form-check-input" type="radio" name="priority" id="High"
                                            value="High">
                                     <label class="form-check-label" for="High">
                                         High
@@ -130,9 +130,16 @@
                         </div>
                     </fieldset>
                     <div class="form-group row">
+                        <label for="inputColor" class="col-sm-2 col-form-label pt-0">Color</label>
+                        <div class="col-sm-10">
+                            <input type="color" name="color" value="#ffffff" id="inputColor" placeholder="Text">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
                         <div class="col-sm-12 text-center">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Add task</button>
+                            <button type="submit" class="btn btn-primary" id="btn-submit">Add task</button>
                         </div>
                     </div>
                 </form>
