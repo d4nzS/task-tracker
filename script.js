@@ -57,14 +57,21 @@ function addTasks({id, title, text, priority, color, timestamp, current}) {
                 <i class="fas fa-ellipsis-v"></i>
             </button>
             <div class="dropdown-menu p-2 flex-column" aria-labelledby="dropdownMenuItem1">
-                <button type="button" class="btn btn-success w-100">Complete</button>
-                <button type="button" class="btn btn-info w-100 my-2">Edit</button>
+                <div data-delete-after-complete>
+                    <button type="button" class="btn btn-success w-100">Complete</button>
+                    <button type="button" class="btn btn-info w-100 my-2">Edit</button>
+                </div>
                 <button type="button" class="btn btn-danger w-100">Delete</button>
             </div>
         </div>
     `;
 
-    current ? currentTasksList.append(task) : completedTaskList.append(task);
+    if (current) {
+        currentTasksList.append(task)
+    } else {
+        task.querySelector('[data-delete-after-complete]').remove();
+        completedTaskList.append(task);
+    }
 }
 
 function drawTasksInit() {
@@ -82,6 +89,7 @@ function completeTask(event) {
     const task = btnComplete.closest('.list-group-item');
     const taskInfo = JSON.parse(localStorage.getItem(task.id));
 
+    task.querySelector('[data-delete-after-complete]').remove();
     localStorage.setItem(task.id, JSON.stringify({...taskInfo, current: false}));
     completedTaskList.append(task);
 }
