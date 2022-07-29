@@ -13,7 +13,6 @@ const completedTaskList = document.getElementById('completedTasks');
 init();
 
 btnAddTask.onclick = onShowForm.bind(null, null);
-
 btnSortNewToOld.onclick = onSortTasks.bind(null, true);
 btnSortOldToNew.onclick = onSortTasks.bind(null, false);
 btnThemeColor.oninput = function () {
@@ -46,11 +45,7 @@ function changeTaskList(event) {
 
     localStorage.setItem(taskInfo.id, JSON.stringify(taskInfo));
 
-    if (form.id) {
-        editTask(taskInfo);
-    } else {
-        addTasksToList(taskInfo);
-    }
+    form.id ? editTask(taskInfo) : addTasksToList(taskInfo);
 
     form.reset();
     $("#exampleModal").modal("hide");
@@ -89,7 +84,7 @@ function addTasksToList({id, title, text, priority, color, timestamp, current}) 
     `;
 
     if (current) {
-        currentTasksList.prepend(task);
+      currentTasksList.prepend(task)
     } else {
         task.querySelector('[data-delete-after-complete]').remove();
         completedTaskList.prepend(task);
@@ -99,7 +94,10 @@ function addTasksToList({id, title, text, priority, color, timestamp, current}) 
 function init() {
     document.body.style.backgroundColor = localStorage.getItem('theme');
 
-    onSortTasks(JSON.parse(localStorage.getItem('sort')));
+    const initialSort = localStorage.getItem('sort')
+        ? JSON.parse(localStorage.getItem('sort'))
+        : true;
+    onSortTasks(initialSort);
 }
 
 function onSortTasks(boolean) {
@@ -112,11 +110,9 @@ function onSortTasks(boolean) {
         .filter(key => key.startsWith('_'))
         .map(key => JSON.parse(localStorage.getItem(key)));
 
-    if (boolean || boolean === null) {
-        taskList.sort((prevTask, task) => prevTask.timestamp - task.timestamp);
-    } else {
-        taskList.sort((prevTask, task) => task.timestamp - prevTask.timestamp);
-    }
+    boolean
+        ? taskList.sort((prevTask, task) => prevTask.timestamp - task.timestamp)
+        : taskList.sort((prevTask, task) => task.timestamp - prevTask.timestamp);
 
     taskList.forEach(task => addTasksToList(task));
 }
