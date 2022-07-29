@@ -15,21 +15,16 @@ init();
 btnAddTask.onclick = onShowForm.bind(null, null);
 btnSortNewToOld.onclick = onSortTasks.bind(null, true);
 btnSortOldToNew.onclick = onSortTasks.bind(null, false);
-btnThemeColor.oninput = function () {
-    const themeColor = btnThemeColor.value;
+btnThemeColor.oninput = onChangeTheme;
 
-    document.body.style.backgroundColor = themeColor;
-    localStorage.setItem('theme', themeColor);
-}
-
-form.onsubmit = changeTaskList;
+form.onsubmit = onChangeTaskList;
 
 currentTasksList.addEventListener('click', onCompleteTask);
 currentTasksList.addEventListener('click', onEditTask);
 currentTasksList.addEventListener('click', onDeleteTask);
 completedTaskList.onclick = onDeleteTask;
 
-function changeTaskList(event) {
+function onChangeTaskList(event) {
     event.preventDefault();
 
     const taskInfo = {
@@ -45,7 +40,12 @@ function changeTaskList(event) {
 
     localStorage.setItem(taskInfo.id, JSON.stringify(taskInfo));
 
-    form.id ? editTask(taskInfo) : addTasksToList(taskInfo);
+    if (form.id) {
+        editTask(taskInfo)
+    } else {
+        addTasksToList(taskInfo);
+        showTasksAmount();
+    }
 
     form.reset();
     $("#exampleModal").modal("hide");
@@ -84,7 +84,7 @@ function addTasksToList({id, title, text, priority, color, timestamp, current}) 
     `;
 
     if (current) {
-      currentTasksList.prepend(task)
+        currentTasksList.prepend(task);
     } else {
         task.querySelector('[data-delete-after-complete]').remove();
         completedTaskList.prepend(task);
@@ -98,6 +98,7 @@ function init() {
         ? JSON.parse(localStorage.getItem('sort'))
         : true;
     onSortTasks(initialSort);
+    showTasksAmount();
 }
 
 function onSortTasks(boolean) {
@@ -117,6 +118,13 @@ function onSortTasks(boolean) {
     taskList.forEach(task => addTasksToList(task));
 }
 
+function onChangeTheme() {
+    const themeColor = btnThemeColor.value;
+
+    document.body.style.backgroundColor = themeColor;
+    localStorage.setItem('theme', themeColor);
+}
+
 function onCompleteTask(event) {
     const btnComplete = event.target;
 
@@ -130,6 +138,7 @@ function onCompleteTask(event) {
     task.querySelector('[data-delete-after-complete]').remove();
     localStorage.setItem(task.id, JSON.stringify({...taskInfo, current: false}));
     completedTaskList.append(task);
+    showTasksAmount();
 }
 
 function onEditTask(event) {
@@ -164,6 +173,7 @@ function onDeleteTask(event) {
 
     localStorage.removeItem(task.id);
     task.remove();
+    showTasksAmount();
 }
 
 function onShowForm(taskId) {
@@ -186,6 +196,11 @@ function onShowForm(taskId) {
     }
 
     $("#exampleModal").modal("show");
+}
+
+function showTasksAmount() {
+    document.getElementById('currentTasksAmount').textContent = currentTasksList.children.length;
+    document.getElementById('completedTasksAmount').textContent = completedTaskList.children.length;
 }
 
 /**
