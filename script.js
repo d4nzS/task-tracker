@@ -119,7 +119,7 @@ function onCompleteTask(event) {
 
     task.querySelector('[data-delete-after-complete]').remove();
     localStorage.setItem(task.id, JSON.stringify({...taskInfo, current: false}));
-    completedTaskList.append(task);
+    completedTaskList.prepend(task);
     showTasksAmount();
 }
 
