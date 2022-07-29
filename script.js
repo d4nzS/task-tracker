@@ -1,11 +1,11 @@
 'use strict';
 
-const form = document.forms['form'];
-
 const btnAddTask = document.getElementById('btnAddTask');
 const btnSortNewToOld = document.getElementById('btnSort');
 const btnSortOldToNew = document.getElementById('btnSortReverse');
 const btnThemeColor = document.getElementById('btnThemeColor');
+
+const form = document.forms['form'];
 
 const currentTasksList = document.getElementById('currentTasks');
 const completedTaskList = document.getElementById('completedTasks');
@@ -23,6 +23,62 @@ currentTasksList.addEventListener('click', onCompleteTask);
 currentTasksList.addEventListener('click', onEditTask);
 currentTasksList.addEventListener('click', onDeleteTask);
 completedTaskList.onclick = onDeleteTask;
+
+function init() {
+    document.body.style.backgroundColor = localStorage.getItem('theme');
+
+    const initialSort = localStorage.getItem('sort')
+        ? JSON.parse(localStorage.getItem('sort'))
+        : true;
+    onSortTasks(initialSort);
+    showTasksAmount();
+}
+
+function onShowForm(taskId) {
+    const formLabel = document.getElementById('exampleModalLabel');
+    const formBtn = document.getElementById('btn-submit');
+
+    if (taskId) {
+        const {id, title, text, priority, color} = JSON.parse(localStorage.getItem(taskId));
+
+        form.id = id;
+        form['title'].value = title;
+        form['text'].value = text;
+        form['priority'].value = priority;
+        form['color'].value = color;
+        formLabel.textContent = formBtn.textContent = 'Edit task';
+    } else {
+        form.removeAttribute('id');
+        form.reset();
+        formLabel.textContent = formBtn.textContent = 'Add task';
+    }
+
+    $("#exampleModal").modal("show");
+}
+
+function onSortTasks(boolean) {
+    localStorage.setItem('sort', JSON.stringify(boolean));
+
+    currentTasksList.innerHTML = '';
+    completedTaskList.innerHTML = '';
+
+    const taskList = (Object.keys(localStorage))
+        .filter(key => key.startsWith('_'))
+        .map(key => JSON.parse(localStorage.getItem(key)));
+
+    boolean
+        ? taskList.sort((prevTask, task) => prevTask.timestamp - task.timestamp)
+        : taskList.sort((prevTask, task) => task.timestamp - prevTask.timestamp);
+
+    taskList.forEach(task => addTask(task));
+}
+
+function onChangeTheme() {
+    const themeColor = btnThemeColor.value;
+
+    document.body.style.backgroundColor = themeColor;
+    localStorage.setItem('theme', themeColor);
+}
 
 function onChangeTaskList(event) {
     event.preventDefault();
@@ -43,7 +99,7 @@ function onChangeTaskList(event) {
     if (form.id) {
         editTask(taskInfo)
     } else {
-        addTasksToList(taskInfo);
+        addTask(taskInfo);
         showTasksAmount();
     }
 
@@ -51,7 +107,49 @@ function onChangeTaskList(event) {
     $("#exampleModal").modal("hide");
 }
 
-function addTasksToList({id, title, text, priority, color, timestamp, current}) {
+function onCompleteTask(event) {
+    const btnComplete = event.target;
+
+    if (!btnComplete.closest('.btn-success')) {
+        return;
+    }
+
+    const task = btnComplete.closest('.list-group-item');
+    const taskInfo = JSON.parse(localStorage.getItem(task.id));
+
+    task.querySelector('[data-delete-after-complete]').remove();
+    localStorage.setItem(task.id, JSON.stringify({...taskInfo, current: false}));
+    completedTaskList.append(task);
+    showTasksAmount();
+}
+
+function onEditTask(event) {
+    const btnEdit = event.target;
+
+    if (!btnEdit.closest('.btn-info')) {
+        return;
+    }
+
+    const task = btnEdit.closest('.list-group-item');
+
+    onShowForm(task.id);
+}
+
+function onDeleteTask(event) {
+    const btnDelete = event.target;
+
+    if (!btnDelete.closest('.btn-danger')) {
+        return;
+    }
+
+    const task = btnDelete.closest('.list-group-item');
+
+    localStorage.removeItem(task.id);
+    task.remove();
+    showTasksAmount();
+}
+
+function addTask({id, title, text, priority, color, timestamp, current}) {
     const task = document.createElement('li');
 
     task.id = id;
@@ -91,68 +189,6 @@ function addTasksToList({id, title, text, priority, color, timestamp, current}) 
     }
 }
 
-function init() {
-    document.body.style.backgroundColor = localStorage.getItem('theme');
-
-    const initialSort = localStorage.getItem('sort')
-        ? JSON.parse(localStorage.getItem('sort'))
-        : true;
-    onSortTasks(initialSort);
-    showTasksAmount();
-}
-
-function onSortTasks(boolean) {
-    localStorage.setItem('sort', JSON.stringify(boolean));
-
-    currentTasksList.innerHTML = '';
-    completedTaskList.innerHTML = '';
-
-    const taskList = (Object.keys(localStorage))
-        .filter(key => key.startsWith('_'))
-        .map(key => JSON.parse(localStorage.getItem(key)));
-
-    boolean
-        ? taskList.sort((prevTask, task) => prevTask.timestamp - task.timestamp)
-        : taskList.sort((prevTask, task) => task.timestamp - prevTask.timestamp);
-
-    taskList.forEach(task => addTasksToList(task));
-}
-
-function onChangeTheme() {
-    const themeColor = btnThemeColor.value;
-
-    document.body.style.backgroundColor = themeColor;
-    localStorage.setItem('theme', themeColor);
-}
-
-function onCompleteTask(event) {
-    const btnComplete = event.target;
-
-    if (!btnComplete.closest('.btn-success')) {
-        return;
-    }
-
-    const task = btnComplete.closest('.list-group-item');
-    const taskInfo = JSON.parse(localStorage.getItem(task.id));
-
-    task.querySelector('[data-delete-after-complete]').remove();
-    localStorage.setItem(task.id, JSON.stringify({...taskInfo, current: false}));
-    completedTaskList.append(task);
-    showTasksAmount();
-}
-
-function onEditTask(event) {
-    const btnEdit = event.target;
-
-    if (!btnEdit.closest('.btn-info')) {
-        return;
-    }
-
-    const task = btnEdit.closest('.list-group-item');
-
-    onShowForm(task.id);
-}
-
 function editTask({id, title, text, priority, color}) {
     const task = document.getElementById(id);
 
@@ -160,42 +196,6 @@ function editTask({id, title, text, priority, color}) {
     task.querySelector('[data-text]').textContent = text;
     task.querySelector('[data-priority]').textContent = priority;
     task.style.backgroundColor = color;
-}
-
-function onDeleteTask(event) {
-    const btnDelete = event.target;
-
-    if (!btnDelete.closest('.btn-danger')) {
-        return;
-    }
-
-    const task = btnDelete.closest('.list-group-item');
-
-    localStorage.removeItem(task.id);
-    task.remove();
-    showTasksAmount();
-}
-
-function onShowForm(taskId) {
-    const formLabel = document.getElementById('exampleModalLabel');
-    const formBtn = document.getElementById('btn-submit');
-
-    if (taskId) {
-        const {id, title, text, priority, color} = JSON.parse(localStorage.getItem(taskId));
-
-        form.id = id;
-        form['title'].value = title;
-        form['text'].value = text;
-        form['priority'].value = priority;
-        form['color'].value = color;
-        formLabel.textContent = formBtn.textContent = 'Edit task';
-    } else {
-        form.removeAttribute('id');
-        form.reset();
-        formLabel.textContent = formBtn.textContent = 'Add task';
-    }
-
-    $("#exampleModal").modal("show");
 }
 
 function showTasksAmount() {
