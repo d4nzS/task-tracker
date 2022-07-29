@@ -82,22 +82,33 @@ function addTasksToList({id, title, text, priority, color, timestamp, current}) 
     `;
 
     if (current) {
-        currentTasksList.append(task);
+        currentTasksList.prepend(task);
     } else {
         task.querySelector('[data-delete-after-complete]').remove();
-        completedTaskList.append(task);
+        completedTaskList.prepend(task);
     }
 }
 
 function init() {
     document.body.style.backgroundColor = localStorage.getItem('theme');
+    const tasksInfo = (Object.keys(localStorage))
+        .filter(key => key.startsWith('_'))
+        .map(key => JSON.parse(localStorage.getItem(key)));
 
-    (Object.keys(localStorage))
-        .forEach(key => {
-            if (key.startsWith('_')) {
-                addTasksToList(JSON.parse(localStorage.getItem(key)));
-            }
-        });
+    sortTasks(tasksInfo, true);
+}
+
+function sortTasks(taskList, boolean) {
+    // currentTasksList.innerHTML = '';
+    // completedTaskList.innerHTML = '';
+
+    if (boolean) {
+        taskList.sort((prevTask, task) => prevTask.timestamp - task.timestamp);
+    } else {
+        taskList.sort((prevTask, task) => task.timestamp - prevTask.timestamp);
+    }
+
+    taskList.forEach(task => addTasksToList(task));
 }
 
 function onCompleteTask(event) {
