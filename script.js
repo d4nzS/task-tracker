@@ -9,13 +9,12 @@ drawTasksInit();
 form.onsubmit = changeTaskList;
 
 currentTasksList.addEventListener('click', completeTask);
+currentTasksList.addEventListener('click', editTask);
 currentTasksList.addEventListener('click', deleteTask);
 completedTaskList.onclick = deleteTask;
 
 function changeTaskList(event) {
     event.preventDefault();
-
-    $('#exampleModal').modal('show');
 
     const taskInfo = {
         id: generateId(),
@@ -28,13 +27,13 @@ function changeTaskList(event) {
     }
 
     localStorage.setItem(taskInfo.id, JSON.stringify(taskInfo));
-    addTasks(taskInfo);
+    addTasksToList(taskInfo);
 
     form.reset();
     $("#exampleModal").modal("hide");
 }
 
-function addTasks({id, title, text, priority, color, timestamp, current}) {
+function addTasksToList({id, title, text, priority, color, timestamp, current}) {
     const task = document.createElement('li');
 
     task.id = id;
@@ -67,7 +66,7 @@ function addTasks({id, title, text, priority, color, timestamp, current}) {
     `;
 
     if (current) {
-        currentTasksList.append(task)
+        currentTasksList.append(task);
     } else {
         task.querySelector('[data-delete-after-complete]').remove();
         completedTaskList.append(task);
@@ -76,7 +75,7 @@ function addTasks({id, title, text, priority, color, timestamp, current}) {
 
 function drawTasksInit() {
     (Object.values(localStorage))
-        .forEach(taskJSON => addTasks(JSON.parse(taskJSON)));
+        .forEach(taskJSON => addTasksToList(JSON.parse(taskJSON)));
 }
 
 function completeTask(event) {
@@ -92,6 +91,37 @@ function completeTask(event) {
     task.querySelector('[data-delete-after-complete]').remove();
     localStorage.setItem(task.id, JSON.stringify({...taskInfo, current: false}));
     completedTaskList.append(task);
+}
+
+function editTask(event) {
+    const btnEdit = event.target;
+
+    if (!btnEdit.closest('.btn-info')) {
+        return;
+    }
+
+    const task = btnEdit.closest('.list-group-item');
+
+    showForm(task.id);
+}
+
+function showForm(taskId) {
+    const formLabel = document.getElementById('exampleModalLabel');
+    const formBtn = document.getElementById('btn-submit');
+
+    if (taskId) {
+        const {title, text, priority, color} = JSON.parse(localStorage.getItem(taskId));
+
+        form['title'].value = title;
+        form['text'].value = text;
+        form['priority'].value = priority;
+        form['color'].value = color;
+        formLabel.textContent = formBtn.textContent = 'Edit task'
+    } else {
+        form.reset();
+        formLabel.textContent = formBtn.textContent = 'Add task'
+    }
+    $("#exampleModal").modal("show");
 }
 
 function deleteTask(event) {
