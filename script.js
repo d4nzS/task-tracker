@@ -2,12 +2,19 @@
 
 const form = document.forms['form']
 const btnAddTask = document.getElementById('btnAddTask');
+const btnThemeColor = document.getElementById('btnThemeColor');
 const currentTasksList = document.getElementById('currentTasks');
 const completedTaskList = document.getElementById('completedTasks');
 
-drawTasksInit();
+init();
 
 btnAddTask.onclick = onShowForm.bind(null, null);
+btnThemeColor.oninput = function () {
+    const themeColor = btnThemeColor.value;
+
+    document.body.style.backgroundColor = themeColor;
+    localStorage.setItem('theme', themeColor);
+}
 
 form.onsubmit = changeTaskList;
 
@@ -82,9 +89,15 @@ function addTasksToList({id, title, text, priority, color, timestamp, current}) 
     }
 }
 
-function drawTasksInit() {
-    (Object.values(localStorage))
-        .forEach(taskJSON => addTasksToList(JSON.parse(taskJSON)));
+function init() {
+    document.body.style.backgroundColor = localStorage.getItem('theme');
+
+    (Object.keys(localStorage))
+        .forEach(key => {
+            if (key.startsWith('_')) {
+                addTasksToList(JSON.parse(localStorage.getItem(key)));
+            }
+        });
 }
 
 function onCompleteTask(event) {
