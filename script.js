@@ -62,15 +62,13 @@ function onSortTasks(boolean) {
     currentTasksList.innerHTML = '';
     completedTaskList.innerHTML = '';
 
-    const taskList = (Object.keys(localStorage))
+    (Object.keys(localStorage))
         .filter(key => key.startsWith('_'))
-        .map(key => JSON.parse(localStorage.getItem(key)));
-
-    boolean
-        ? taskList.sort((prevTask, task) => prevTask.timestamp - task.timestamp)
-        : taskList.sort((prevTask, task) => task.timestamp - prevTask.timestamp);
-
-    taskList.forEach(task => addTask(task));
+        .map(key => JSON.parse(localStorage.getItem(key)))
+        .sort((prevTask, task) => boolean
+            ? prevTask.timestamp - task.timestamp
+            : task.timestamp - prevTask.timestamp)
+        .forEach(task => addTask(task));
 }
 
 function onChangeTheme() {
@@ -224,8 +222,7 @@ function showCurrentDate(timestamp) {
         date.getDate(),
         date.getMonth() + 1,
         date.getFullYear(),
-    ];
-    times = times.map(item => item < 10 ? "0" + item : item);
+    ].map(item => item < 10 ? "0" + item : item);
 
     return `${times[0]}:${times[1]} ${times[2]}.${times[3]}.${times[4]}`;
 }
