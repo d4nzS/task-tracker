@@ -1,14 +1,21 @@
 'use strict';
 
-const form = document.forms['form']
+const form = document.forms['form'];
+
 const btnAddTask = document.getElementById('btnAddTask');
+const btnSortNewToOld = document.getElementById('btnSort');
+const btnSortOldToNew = document.getElementById('btnSortReverse');
 const btnThemeColor = document.getElementById('btnThemeColor');
+
 const currentTasksList = document.getElementById('currentTasks');
 const completedTaskList = document.getElementById('completedTasks');
 
 init();
 
 btnAddTask.onclick = onShowForm.bind(null, null);
+
+btnSortNewToOld.onclick = onSortTasks.bind(null, true);
+btnSortOldToNew.onclick = onSortTasks.bind(null, false);
 btnThemeColor.oninput = function () {
     const themeColor = btnThemeColor.value;
 
@@ -91,18 +98,21 @@ function addTasksToList({id, title, text, priority, color, timestamp, current}) 
 
 function init() {
     document.body.style.backgroundColor = localStorage.getItem('theme');
-    const tasksInfo = (Object.keys(localStorage))
+
+    onSortTasks(JSON.parse(localStorage.getItem('sort')));
+}
+
+function onSortTasks(boolean) {
+    localStorage.setItem('sort', JSON.stringify(boolean));
+
+    currentTasksList.innerHTML = '';
+    completedTaskList.innerHTML = '';
+
+    const taskList = (Object.keys(localStorage))
         .filter(key => key.startsWith('_'))
         .map(key => JSON.parse(localStorage.getItem(key)));
 
-    sortTasks(tasksInfo, true);
-}
-
-function sortTasks(taskList, boolean) {
-    // currentTasksList.innerHTML = '';
-    // completedTaskList.innerHTML = '';
-
-    if (boolean) {
+    if (boolean || boolean === null) {
         taskList.sort((prevTask, task) => prevTask.timestamp - task.timestamp);
     } else {
         taskList.sort((prevTask, task) => task.timestamp - prevTask.timestamp);
