@@ -25,11 +25,11 @@ currentTasksList.addEventListener('click', onDeleteTask);
 completedTaskList.onclick = onDeleteTask;
 
 function init() {
-    document.body.style.backgroundColor = localStorage.getItem('theme');
-
     const initialSort = localStorage.getItem('sort')
         ? JSON.parse(localStorage.getItem('sort'))
         : true;
+
+    document.body.style.backgroundColor = localStorage.getItem('theme');
     onSortTasks(initialSort);
     showTasksAmount();
 }
@@ -87,7 +87,8 @@ function onChangeTaskList(event) {
         text: form['text'].value,
         priority: form['priority'].value,
         color: form['color'].value,
-        timestamp: form.id ? JSON.parse(localStorage.getItem(form.id)).timestamp
+        timestamp: form.id
+            ? JSON.parse(localStorage.getItem(form.id)).timestamp
             : Date.now(),
         current: true
     }
@@ -95,7 +96,7 @@ function onChangeTaskList(event) {
     localStorage.setItem(taskInfo.id, JSON.stringify(taskInfo));
 
     if (form.id) {
-        editTask(taskInfo)
+        editTask(taskInfo);
     } else {
         addTask(taskInfo);
         showTasksAmount();
@@ -216,7 +217,7 @@ function generateId() {
 function showCurrentDate(timestamp) {
     const date = new Date(timestamp);
 
-    let times = [
+    const times = [
         date.getHours(),
         date.getMinutes(),
         date.getDate(),
